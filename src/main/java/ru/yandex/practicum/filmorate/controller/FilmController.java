@@ -11,13 +11,14 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 @RestController
 @RequestMapping("/films")
 @Slf4j
 public class FilmController {
 
-    private final Map<Long, Film> films = new HashMap<>();
+    private final Map<Long, Film> films = new ConcurrentHashMap<>();
 
     private long newId = 0;
 
@@ -28,7 +29,7 @@ public class FilmController {
     }
 
     @PostMapping
-    public Film create(@RequestBody Film film) {
+    public Film create(@RequestBody Film film) throws ValidationException {
         log.debug("Получен запрос POST");
         film.setId(generateNewId());
         checkObject(film, "POST");
@@ -38,7 +39,7 @@ public class FilmController {
     }
 
     @PutMapping
-    public Film put(@RequestBody Film film) {
+    public Film put(@RequestBody Film film) throws ValidationException {
         log.debug("Получен запрос PUT");
         checkObject(film, "PUT");
         films.put(film.getId(), film);
@@ -50,7 +51,7 @@ public class FilmController {
         return ++newId;
     }
 
-   private void checkObject(Film film, String method) {
+   private void checkObject(Film film, String method) throws ValidationException {
 
         if (film.getId() == 0 ||
                 film.getName() == null ||

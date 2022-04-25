@@ -10,13 +10,14 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 @RestController
 @RequestMapping("/users")
 @Slf4j
 public class UserController {
 
-    private final Map<Long, User> users = new HashMap<>();
+    private final Map<Long, User> users = new ConcurrentHashMap<>();
 
     private long newId = 0;
 
@@ -27,7 +28,7 @@ public class UserController {
     }
 
     @PostMapping
-    public User create(@RequestBody User user) {
+    public User create(@RequestBody User user) throws ValidationException {
         log.debug("Получен запрос POST");
         user.setId(generateNewId());
         checkObject(user, "POST");
@@ -37,7 +38,7 @@ public class UserController {
     }
 
     @PutMapping
-    public User put(@RequestBody User user) {
+    public User put(@RequestBody User user) throws ValidationException {
         log.debug("Получен запрос PUT");
         checkObject(user, "PUT");
         users.put(user.getId(), user);
@@ -49,7 +50,7 @@ public class UserController {
         return ++newId;
     }
 
-    private void checkObject(User user, String method) {
+    private void checkObject(User user, String method) throws ValidationException {
 
         if (user.getId() == 0 ||
                 user.getEmail() == null ||
