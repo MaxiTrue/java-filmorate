@@ -1,12 +1,11 @@
 package ru.yandex.practicum.filmorate.service;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.UserNotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
-import ru.yandex.practicum.filmorate.storage.InMemoryUserStorage;
 import ru.yandex.practicum.filmorate.storage.UserStorage;
 
 import java.time.LocalDate;
@@ -15,15 +14,11 @@ import java.util.Iterator;
 import java.util.List;
 
 @Service
+@RequiredArgsConstructor
 @Slf4j
 public class UserService {
 
-    UserStorage<User> storageUsers;
-
-    @Autowired
-    public UserService(InMemoryUserStorage storage) {
-        this.storageUsers = storage;
-    }
+    private final UserStorage<User> storageUsers;
 
     public User create(User user) throws ValidationException {
         checkObject(user, "POST");
@@ -35,7 +30,7 @@ public class UserService {
         return storageUsers.update(user);
     }
 
-    public User findById(Long id) {
+    public User findById(Long id) throws UserNotFoundException {
         return storageUsers.findById(id);
     }
 
@@ -44,7 +39,7 @@ public class UserService {
         return storageUsers.findAll();
     }
 
-    public void addInFriends(Long id, Long friendId) {
+    public void addInFriends(Long id, Long friendId) throws UserNotFoundException {
 
         User user = storageUsers.findById(id);
         User friend = storageUsers.findById(friendId);
@@ -54,7 +49,7 @@ public class UserService {
         log.debug("Пользователи добавлены друг другу в друзья id - {} и id - {}", id, friendId);
     }
 
-    public void removeFromFriends(Long id, Long friendId) {
+    public void removeFromFriends(Long id, Long friendId) throws UserNotFoundException {
 
         User user = storageUsers.findById(id);
         User friend = storageUsers.findById(friendId);
@@ -70,14 +65,14 @@ public class UserService {
         log.debug("Пользователи удалены друг у друга из друзей id - {} и id - {}", id, friendId);
     }
 
-    public List<User> findAllFriendsUserById(Long id) {
+    public List<User> findAllFriendsUserById(Long id) throws UserNotFoundException {
 
         User user = storageUsers.findById(id);
 
         return findListFriendsFromUSer(new ArrayList<>(user.getFriends()));
     }
 
-    public List<User> findCommonFriends(Long id, Long otherId) {
+    public List<User> findCommonFriends(Long id, Long otherId) throws UserNotFoundException {
 
         List<User> commonFriends = new ArrayList<>();
 
@@ -104,11 +99,11 @@ public class UserService {
 
     private void checkObject(User user, String method) throws ValidationException {
 
-        if (user.getEmail() == null ||
-                user.getLogin() == null ||
+        if (user.getEmail().isBlank() ||
+                user.getLogin().isBlank() ||
                 user.getBirthday() == null) {
-            log.debug("Одно из полей объекта user равно null");
-            throw new ValidationException("Поля не должны быть null.");
+            log.debug("Одно из полей объекта user пустое или равно null");
+            throw new ValidationException("Поля не должны быть пустыми или равняться null.");
         }
 
         if (method.equals("PUT")) {
@@ -118,20 +113,17 @@ public class UserService {
             }
         }
 
-        if (user.getEmail().isBlank() ||
-                !user.getEmail().contains("@")) {
+        if (!user.getEmail().contains("@")) {
             log.debug("Поле email имеет неверный формат.");
             throw new ValidationException("Поле email НЕ должно быть пустой, и должно содержать символ - @");
         }
 
-        if (user.getLogin().isBlank() ||
-                user.getLogin().contains(" ")) {
+        if (user.getLogin().contains(" ")) {
             log.debug("Поле login имеет неверный формат.");
             throw new ValidationException("Поле login НЕ должно быть пустым, и НЕ должно содержать пробелы.");
         }
 
-        if (user.getName() == null ||
-                user.getName().isBlank()) {
+        if (user.getName().isBlank()) {
             user.setName(user.getLogin());
             log.debug("Поле nameUser было пустым, для поля установлено значение из login.");
         }
@@ -143,7 +135,7 @@ public class UserService {
 
     }
 
-    private List<User> findListFriendsFromUSer(List<Long> idFriends) {
+    private List<User> findListFriendsFromUSer(List<Long> idFriends) throws UserNotFoundException {
         List<User> emailFriend = new ArrayList<>();
 
         for (Long id : idFriends) {

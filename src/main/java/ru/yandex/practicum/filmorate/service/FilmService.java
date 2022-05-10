@@ -1,15 +1,14 @@
 package ru.yandex.practicum.filmorate.service;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import ru.yandex.practicum.filmorate.exception.FilmNotFoundException;
 import ru.yandex.practicum.filmorate.exception.UserNotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.FilmStorage;
-import ru.yandex.practicum.filmorate.storage.InMemoryFilmStorage;
-import ru.yandex.practicum.filmorate.storage.InMemoryUserStorage;
 import ru.yandex.practicum.filmorate.storage.UserStorage;
 
 import java.time.LocalDate;
@@ -20,17 +19,12 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
+@RequiredArgsConstructor
 @Slf4j
 public class FilmService {
 
-    FilmStorage<Film> storageFilms;
-    UserStorage<User> storageUsers;
-
-    @Autowired
-    public FilmService(InMemoryFilmStorage storageFilms, InMemoryUserStorage storageUsers) {
-        this.storageFilms = storageFilms;
-        this.storageUsers = storageUsers;
-    }
+    private final FilmStorage<Film> storageFilms;
+    private final UserStorage<User> storageUsers;
 
     public Film create(Film film) throws ValidationException {
         checkObject(film, "POST");
@@ -47,7 +41,7 @@ public class FilmService {
         return storageFilms.findAll();
     }
 
-    public Film findById(Long id) {
+    public Film findById(Long id) throws FilmNotFoundException {
         return storageFilms.findById(id);
     }
 
@@ -58,7 +52,8 @@ public class FilmService {
                 limit(count).collect(Collectors.toSet());
     }
 
-    public List<Long> addLikeFilm(Long filmId, Long userId) {
+    public List<Long> addLikeFilm(Long filmId, Long userId) throws UserNotFoundException,
+            FilmNotFoundException {
 
         Film film = storageFilms.findById(filmId);
 
@@ -67,7 +62,8 @@ public class FilmService {
         return new ArrayList<>(film.getLikes());
     }
 
-    public List<Long> removeLikeFilm(Long filmId, Long userId) {
+    public List<Long> removeLikeFilm(Long filmId, Long userId) throws UserNotFoundException,
+            FilmNotFoundException {
 
         Film film = storageFilms.findById(filmId);
 
@@ -82,8 +78,8 @@ public class FilmService {
 
     private void checkObject(Film film, String method) throws ValidationException {
 
-        if (film.getName() == null ||
-                film.getDescription() == null ||
+        if (film.getName().isBlank() ||
+                film.getDescription().isBlank() ||
                 film.getReleaseDate() == null ||
                 film.getDuration() == null) {
             log.debug("Одно из полей объекта film равно null");
@@ -97,12 +93,7 @@ public class FilmService {
             }
         }
 
-        if (film.getName().isBlank()) {
-            log.debug("Поле name имеет неверный формат.");
-            throw new ValidationException("Поле name не может быть пустым.");
-        }
-
-        if (film.getDescription().isBlank() || film.getDescription().length() > 200) {
+        if (film.getDescription().length() > 200) {
             log.debug("Поле description имеет неверный формат.");
             throw new ValidationException("Поле description не может быть больше 200 знаков.");
         }
