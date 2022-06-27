@@ -16,12 +16,12 @@ public class MpaService {
 
     private final MpaDao mpaDao;
 
-    public Collection<Mpa> findAllMpa() {
-        return mpaDao.findAllMpa();
+    public Collection<Mpa> findAll() {
+        return mpaDao.findAll();
     }
 
-    public Mpa findMpaById(Integer mpaId) throws ObjectNotFoundException {
-        return mpaDao.findMpaById(mpaId);
+    public Mpa findById(Integer mpaId) throws ObjectNotFoundException {
+        return mpaDao.findById(mpaId);
     }
 
 }

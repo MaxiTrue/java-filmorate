@@ -104,7 +104,7 @@ public class FilmDbStorageTest {
     @Test
     public void shouldReturnFilm_Id_1() throws ObjectNotFoundException {
         Film filmReturn = filmDbStorage.create(film);  //добавление в БД объект
-        Film foundFilm = filmDbStorage.findById(filmReturn.getId()); // получение из БД объекта по вернувшемуся id
+        Film foundFilm = filmDbStorage.findById(filmReturn.getId()).get(); // получение из БД объекта по вернувшемуся id
         assertThat(filmReturn.getId()).isEqualTo(foundFilm.getId());
         assertThat(filmReturn.getName()).isEqualTo(foundFilm.getName());
         assertThat(filmReturn.getDescription()).isEqualTo(foundFilm.getDescription());

@@ -6,7 +6,6 @@ import org.springframework.context.annotation.Primary;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Component;
-import ru.yandex.practicum.filmorate.exception.ObjectNotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.Mpa;
@@ -91,7 +90,7 @@ public class FilmDbStorage implements FilmStorage<Film> {
                 film.getMpa().getId());
 
         //удаляем все записи из таблицы genre_film по id фильма
-        genreDao.deleteGenreForFilm(film.getId());
+        genreDao.deleteByFilmId(film.getId());
 
         //добавление строк(и) в таблицу хранения жанров фильма
         if (film.getGenres() != null) {
@@ -107,7 +106,7 @@ public class FilmDbStorage implements FilmStorage<Film> {
     public Long delete(Long filmId) {
         jdbcTemplate.update(SQL_DELETE_FILM, filmId);
         //в БД указано каскадное удаление, но удаляем жанры и лайки на всякий случай
-        genreDao.deleteGenreForFilm(filmId);
+        genreDao.deleteByFilmId(filmId);
         likeDao.deleteAllLikesForFilm(filmId);
         log.debug("Запись с фильмом успешно удалена, его id - {}", filmId);
         return filmId;
@@ -122,12 +121,9 @@ public class FilmDbStorage implements FilmStorage<Film> {
     }
 
     @Override
-    public Film findById(Long filmId) throws ObjectNotFoundException {
+    public Optional<Film> findById(Long filmId) {
         List<Film> films = jdbcTemplate.query(SQL_GET_FILM_ID, (rs, rowNum) -> makeFilm(rs), filmId);
-        if (films.size() == 0) {
-            throw new ObjectNotFoundException("фильм", filmId);
-        }
-        return films.get(0);
+        return films.size() == 0 ? Optional.empty() : Optional.of(films.get(0));
     }
 
     @Override

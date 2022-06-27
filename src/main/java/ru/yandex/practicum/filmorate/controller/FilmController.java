@@ -25,7 +25,7 @@ public class FilmController {
     }
 
     @PutMapping
-    public Film update(@RequestBody Film film) throws ValidationException, ObjectNotFoundException {
+    public Film update(@RequestBody Film film) throws Throwable {
         log.debug("Получен запрос PUT на фильм id - {}", film.getId());
         return filmService.updateFilm(film);
     }
@@ -43,7 +43,7 @@ public class FilmController {
     }
 
     @GetMapping("{id}")
-    public Film findById(@PathVariable("id") Long id) throws ObjectNotFoundException {
+    public Film findById(@PathVariable("id") Long id) throws Throwable {
         log.debug("Получен запрос GET на фильм id - {}", id);
         return filmService.findFilmById(id);
     }

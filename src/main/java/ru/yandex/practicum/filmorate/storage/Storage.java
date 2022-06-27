@@ -1,8 +1,10 @@
 package ru.yandex.practicum.filmorate.storage;
 
 import ru.yandex.practicum.filmorate.exception.ObjectNotFoundException;
+import ru.yandex.practicum.filmorate.model.Film;
 
 import java.util.Collection;
+import java.util.Optional;
 
 public interface Storage<T> {
 
@@ -14,6 +16,6 @@ public interface Storage<T> {
 
     Collection<T> findAll();
 
-    T findById(Long objectId) throws ObjectNotFoundException;
+    Optional<T> findById(Long objectId);
 
 }

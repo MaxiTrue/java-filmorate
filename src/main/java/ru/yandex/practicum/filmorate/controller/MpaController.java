@@ -21,12 +21,12 @@ public class MpaController {
 
     @GetMapping
     public Collection<Mpa> findAll() {
-        return mpaService.findAllMpa();
+        return mpaService.findAll();
     }
 
     @GetMapping("{id}")
     public Mpa findById(@PathVariable("id") Integer id) throws ObjectNotFoundException {
-        return mpaService.findMpaById(id);
+        return mpaService.findById(id);
     }
 
 

@@ -58,11 +58,12 @@ public class InMemoryUserStorage implements UserStorage<User> {
     }
 
     @Override
-    public User findById(Long id) throws ObjectNotFoundException {
-        if (!users.containsKey(id)) {
+    public Optional<User> findById(Long id) {
+        /**if (!users.containsKey(id)) {
             throw new ObjectNotFoundException("пользователь", id);
         }
-        return users.get(id);
+        return users.get(id);*/
+        return Optional.ofNullable(users.get(id));
     }
 
     @Override

@@ -25,14 +25,14 @@ public class GenreDao {
     /**
      * Получение всех жанров
      */
-    public Collection<Genre> findAllGenre() {
+    public Collection<Genre> findAll() {
         return jdbcTemplate.query(SQL_GET_ALL_GENRE, (rs, rowNum) -> new Genre(rs.getInt("id")));
     }
 
     /**
      * Получение жанра по id
      */
-    public Genre findGenreById(Integer genreId) throws ObjectNotFoundException {
+    public Genre findById(Integer genreId) throws ObjectNotFoundException {
         SqlRowSet rowSet = jdbcTemplate.queryForRowSet(SQL_GET_GENRE_ID, genreId);
         if (rowSet.next()) {
             return new Genre(rowSet.getInt("id"));
@@ -60,7 +60,7 @@ public class GenreDao {
     /**
      * Удаление записи отнощения жанра к фильму
      */
-    protected void deleteGenreForFilm(Long filmId) {
+    protected void deleteByFilmId(Long filmId) {
         jdbcTemplate.update(SQL_DELETE_GENRE_FOR_FILM, filmId);
     }
 

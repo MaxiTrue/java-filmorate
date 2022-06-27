@@ -22,12 +22,12 @@ public class GenreController {
 
     @GetMapping
     public Collection<Genre> findAll() {
-        return genreService.findAllGenre();
+        return genreService.findGenre();
     }
 
     @GetMapping("{id}")
     public Genre getById(@PathVariable("id") Integer id) throws ObjectNotFoundException {
-        return genreService.findGenreById(id);
+        return genreService.findById(id);
     }
 
 

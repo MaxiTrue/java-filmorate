@@ -93,13 +93,9 @@ public class UserDbStorage implements UserStorage<User> {
     }
 
     @Override
-    public User findById(Long userId) throws ObjectNotFoundException {
+    public Optional<User> findById(Long userId) {
         List<User> users = jdbcTemplate.query(SQL_GET_USER_BY_ID, (rs, rowNum) -> makeUser(rs), userId);
-
-        if (users.size() == 0) {
-            throw new ObjectNotFoundException("пользователь", userId);
-        }
-        return users.get(0);
+        return users.size() == 0 ? Optional.empty() : Optional.of(users.get(0));
     }
 
     @Override

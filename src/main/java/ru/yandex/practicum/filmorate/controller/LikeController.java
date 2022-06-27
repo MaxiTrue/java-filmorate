@@ -26,7 +26,7 @@ public class LikeController {
     public Long addLikeFilm(
             @PathVariable("id") Long filmId,
             @PathVariable("userId") Long userId
-    ) throws ObjectNotFoundException {
+    ) throws Throwable {
         return filmService.addLikeFilm(filmId, userId);
     }
 
@@ -34,7 +34,7 @@ public class LikeController {
     public Long removeLikeFilm(
             @PathVariable("id") Long filmId,
             @PathVariable("userId") Long userId
-    ) throws ObjectNotFoundException {
+    ) throws Throwable {
         return filmService.removeLikeFilm(filmId, userId);
     }
 

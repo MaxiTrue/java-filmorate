@@ -21,7 +21,7 @@ public class FriendController {
     public Long addInFriends(
             @PathVariable("id") Long id,
             @PathVariable("friendId") Long friendId
-    ) throws ObjectNotFoundException {
+    ) throws Throwable {
         log.debug("Получен запрос PUT на добавление в друзья друг друга пользователей id - {} и id - {}",
                 id, friendId);
         return userService.addInFriends(id, friendId);
@@ -31,14 +31,14 @@ public class FriendController {
     public Long removeFromFriends(
             @PathVariable("id") Long id,
             @PathVariable("friendId") Long friendId
-    ) throws ObjectNotFoundException {
+    ) throws Throwable {
         log.debug("Получен запрос DELETE на удаление из друзей друг друга пользователей id - {} и id - {}",
                 id, friendId);
         return userService.removeFromFriends(id, friendId);
     }
 
     @GetMapping("/friends")
-    public Collection<User> findAllFriendsById(@PathVariable("id") Long id) throws ObjectNotFoundException {
+    public Collection<User> findAllFriendsById(@PathVariable("id") Long id) throws Throwable {
         log.debug("Получен запрос GET на друзей пользователя id - {}", id);
         return userService.findAllFriendsUserById(id);
     }
@@ -47,7 +47,7 @@ public class FriendController {
     public Collection<User> findCommonFriends(
             @PathVariable("id") Long id,
             @PathVariable("otherId") Long otherId
-    ) throws ObjectNotFoundException {
+    ) throws Throwable {
         log.debug("Получен запрос GET на общих друзей пользователя id - {} и id - {}", id, otherId);
         return userService.findCommonFriends(id, otherId);
     }

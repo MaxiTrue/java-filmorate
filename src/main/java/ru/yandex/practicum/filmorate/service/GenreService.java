@@ -16,12 +16,12 @@ public class GenreService {
 
     private final GenreDao genreDao;
 
-    public Collection<Genre> findAllGenre() {
-        return genreDao.findAllGenre();
+    public Collection<Genre> findGenre() {
+        return genreDao.findAll();
     }
 
-    public Genre findGenreById(Integer genreId) throws ObjectNotFoundException {
-        return genreDao.findGenreById(genreId);
+    public Genre findById(Integer genreId) throws ObjectNotFoundException {
+        return genreDao.findById(genreId);
     }
 
 }

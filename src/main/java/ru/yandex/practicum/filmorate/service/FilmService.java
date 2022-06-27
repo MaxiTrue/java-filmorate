@@ -13,6 +13,8 @@ import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 import java.time.LocalDate;
 import java.time.Month;
 import java.util.Collection;
+import java.util.Optional;
+import java.util.function.Supplier;
 
 @Service
 @RequiredArgsConstructor
@@ -30,8 +32,10 @@ public class FilmService {
         return storageFilms.create(film);
     }
 
-    public Film updateFilm(Film film) throws ValidationException, ObjectNotFoundException {
-        Film checkFilm = storageFilms.findById(film.getId());
+    public Film updateFilm(Film film) throws Throwable {
+        storageFilms.findById(film.getId()).
+                orElseThrow((Supplier<Throwable>) () -> new ObjectNotFoundException("фильм", film.getId()));
+
         checkObjectFilm(film);
         return storageFilms.update(film);
     }
@@ -47,8 +51,9 @@ public class FilmService {
         return storageFilms.findAll();
     }
 
-    public Film findFilmById(Long filmId) throws ObjectNotFoundException {
-        return storageFilms.findById(filmId);
+    public Film findFilmById(Long filmId) throws Throwable {
+        return storageFilms.findById(filmId).
+                orElseThrow((Supplier<Throwable>) () -> new ObjectNotFoundException("фильм", filmId));
     }
 
     public Collection<Film> findPopularFilms(Integer maxSize) {
@@ -58,21 +63,22 @@ public class FilmService {
     /**
      * Методы добавления/удаления лайков
      */
-    public Long addLikeFilm(Long filmId, Long userId) throws ObjectNotFoundException {
-        //проверим существует ли фильм которому ставим лайк, и пользователь который ставит лайк
-        Film film = storageFilms.findById(filmId);
-        User user = storageUsers.findById(userId);
+    public Long addLikeFilm(Long filmId, Long userId) throws Throwable {
+        storageFilms.findById(filmId).
+                orElseThrow((Supplier<Throwable>) () -> new ObjectNotFoundException("фильм", filmId));
+        storageUsers.findById(userId).
+                orElseThrow((Supplier<Throwable>) () -> new ObjectNotFoundException("пользователь", userId));
 
         return storageFilms.addLike(filmId, userId);
     }
 
-    public Long removeLikeFilm(Long filmId, Long userId) throws ObjectNotFoundException {
-        Film film = storageFilms.findById(filmId);
+    public Long removeLikeFilm(Long filmId, Long userId) throws Throwable {
+        storageFilms.findById(filmId).
+                orElseThrow((Supplier<Throwable>) () -> new ObjectNotFoundException("фильм", filmId));
 
         if (!storageFilms.findAllLikesFilm(filmId).contains(userId)) {
-            throw new ObjectNotFoundException("фильм", userId);
+            throw new ObjectNotFoundException("пользователь", userId);
         }
-
         return storageFilms.removeLike(filmId, userId);
     }
 

@@ -26,7 +26,7 @@ public class UserController {
     }
 
     @PutMapping
-    public User update(@RequestBody User user) throws ValidationException, ObjectNotFoundException {
+    public User update(@RequestBody User user) throws Throwable {
         log.debug("Получен запрос PUT на пользователя id - {}", user.getId());
         return userService.update(user);
     }
@@ -40,11 +40,11 @@ public class UserController {
     @GetMapping
     public Collection<User> findAll() {
         log.debug("Получен запрос GET на все записи с пользователями");
-        return userService.findAllUser();
+        return userService.findAllUsers();
     }
 
     @GetMapping("{id}")
-    public User findById(@PathVariable("id") Long id) throws ObjectNotFoundException {
+    public User findById(@PathVariable("id") Long id) throws Throwable {
         log.debug("Получен запрос GET на пользователя id - {}", id);
         return userService.findUserById(id);
     }
