@@ -86,7 +86,6 @@ public class FilmService {
      * Метод валидации объекта Film
      */
     private void checkObjectFilm(Film film) throws ValidationException {
-
         if (film.getName().isBlank() ||
                 film.getDescription().isBlank() ||
                 film.getReleaseDate() == null ||
