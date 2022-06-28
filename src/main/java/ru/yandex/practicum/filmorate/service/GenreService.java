@@ -16,7 +16,7 @@ public class GenreService {
 
     private final GenreDao genreDao;
 
-    public Collection<Genre> findGenre() {
+    public Collection<Genre> findAll() {
         return genreDao.findAll();
     }
 

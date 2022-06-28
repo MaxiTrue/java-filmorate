@@ -37,5 +37,4 @@ public class MpaDao {
         throw new ObjectNotFoundException("mpa", mpaId);
     }
 
-
 }
