@@ -1,13 +1,13 @@
 package ru.yandex.practicum.filmorate.model;
 
-import lombok.Data;
-import ru.yandex.practicum.filmorate.exception.UserNotFoundException;
+import lombok.*;
 
 import java.time.LocalDate;
-import java.util.HashSet;
 import java.util.Set;
 
+
 @Data
+@Builder
 public class User {
 
     private long id;
@@ -15,6 +15,6 @@ public class User {
     private final String login;
     private String name;
     private final LocalDate birthday;
-    private final Set<Long> friends = new HashSet<>();
+    private final Set<Long> friends;
 
 }

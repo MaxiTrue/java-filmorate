@@ -1,21 +1,21 @@
 package ru.yandex.practicum.filmorate.storage;
 
-import ru.yandex.practicum.filmorate.exception.FilmNotFoundException;
-import ru.yandex.practicum.filmorate.exception.UserNotFoundException;
+import ru.yandex.practicum.filmorate.exception.ObjectNotFoundException;
+import ru.yandex.practicum.filmorate.model.Film;
 
-import java.util.List;
-
+import java.util.Collection;
+import java.util.Optional;
 
 public interface Storage<T> {
 
-    List<T> findAll();
-
-    T findById(Long id) throws Exception;
-
-    T add(T object);
+    T create(T object);
 
     T update(T object);
 
-    void delete(Long id);
+    Long delete(Long objectId);
+
+    Collection<T> findAll();
+
+    Optional<T> findById(Long objectId);
 
 }

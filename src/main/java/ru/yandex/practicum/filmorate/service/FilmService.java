@@ -3,20 +3,18 @@ package ru.yandex.practicum.filmorate.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import ru.yandex.practicum.filmorate.exception.FilmNotFoundException;
-import ru.yandex.practicum.filmorate.exception.UserNotFoundException;
+import ru.yandex.practicum.filmorate.exception.ObjectNotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
-import ru.yandex.practicum.filmorate.storage.FilmStorage;
-import ru.yandex.practicum.filmorate.storage.UserStorage;
+import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
+import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
 import java.time.LocalDate;
 import java.time.Month;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
+import java.util.Collection;
+import java.util.Optional;
+import java.util.function.Supplier;
 
 @Service
 @RequiredArgsConstructor
@@ -26,71 +24,74 @@ public class FilmService {
     private final FilmStorage<Film> storageFilms;
     private final UserStorage<User> storageUsers;
 
-    public Film create(Film film) throws ValidationException {
-        checkObject(film, "POST");
-        return storageFilms.add(film);
+    /**
+     * Методы CRUD над сущностью Film
+     */
+    public Film createFilm(Film film) throws ValidationException {
+        checkObjectFilm(film);
+        return storageFilms.create(film);
     }
 
-    public Film update(Film film) throws ValidationException {
-        checkObject(film, "PUT");
+    public Film updateFilm(Film film) throws Throwable {
+        storageFilms.findById(film.getId()).
+                orElseThrow((Supplier<Throwable>) () -> new ObjectNotFoundException("фильм", film.getId()));
+
+        checkObjectFilm(film);
         return storageFilms.update(film);
     }
 
-    public List<Film> findAllFilms() {
-        log.debug("Текущее количество фильмов: {}", storageFilms.getSize());
+    public Long deleteFilmById(Long filmId) {
+        return storageFilms.delete(filmId);
+    }
+
+    /**
+     * Методы получения данных из хранилища
+     */
+    public Collection<Film> findAllFilms() {
         return storageFilms.findAll();
     }
 
-    public Film findById(Long id) throws FilmNotFoundException {
-        return storageFilms.findById(id);
+    public Film findFilmById(Long filmId) throws Throwable {
+        return storageFilms.findById(filmId).
+                orElseThrow((Supplier<Throwable>) () -> new ObjectNotFoundException("фильм", filmId));
     }
 
-    public Set<Film> findPopularFilms(Integer count) {
-
-        return storageFilms.findAll().stream().
-                sorted((o1, o2) -> o2.getLikes().size() - o1.getLikes().size()).
-                limit(count).collect(Collectors.toSet());
+    public Collection<Film> findPopularFilms(Integer maxSize) {
+        return storageFilms.findPopularFilms(maxSize);
     }
 
-    public List<Long> addLikeFilm(Long filmId, Long userId) throws UserNotFoundException,
-            FilmNotFoundException {
+    /**
+     * Методы добавления/удаления лайков
+     */
+    public Long addLikeFilm(Long filmId, Long userId) throws Throwable {
+        storageFilms.findById(filmId).
+                orElseThrow((Supplier<Throwable>) () -> new ObjectNotFoundException("фильм", filmId));
+        storageUsers.findById(userId).
+                orElseThrow((Supplier<Throwable>) () -> new ObjectNotFoundException("пользователь", userId));
 
-        Film film = storageFilms.findById(filmId);
-
-        film.getLikes().add(storageUsers.findById(userId).getId());
-
-        return new ArrayList<>(film.getLikes());
+        return storageFilms.addLike(filmId, userId);
     }
 
-    public List<Long> removeLikeFilm(Long filmId, Long userId) throws UserNotFoundException,
-            FilmNotFoundException {
+    public Long removeLikeFilm(Long filmId, Long userId) throws Throwable {
+        storageFilms.findById(filmId).
+                orElseThrow((Supplier<Throwable>) () -> new ObjectNotFoundException("фильм", filmId));
 
-        Film film = storageFilms.findById(filmId);
-
-        if (!film.getLikes().contains(userId)) {
-            throw new UserNotFoundException("Лайк от пользователя с id - " + userId + " отсутствует.");
+        if (!storageFilms.findAllLikesFilm(filmId).contains(userId)) {
+            throw new ObjectNotFoundException("пользователь", userId);
         }
-
-        film.getLikes().remove(userId);
-
-        return new ArrayList<>(film.getLikes());
+        return storageFilms.removeLike(filmId, userId);
     }
 
-    private void checkObject(Film film, String method) throws ValidationException {
-
+    /**
+     * Метод валидации объекта Film
+     */
+    private void checkObjectFilm(Film film) throws ValidationException {
         if (film.getName().isBlank() ||
                 film.getDescription().isBlank() ||
                 film.getReleaseDate() == null ||
                 film.getDuration() == null) {
             log.debug("Одно из полей объекта film равно null");
             throw new ValidationException("Поля не должны быть null.");
-        }
-
-        if (method.equals("PUT")) {
-            if (!storageFilms.containsFilm(film.getId())) {
-                log.debug("Объект film с таким id - {} НЕ существует.", film.getId());
-                throw new ValidationException("Запись с таким значение поля id НЕ существует.");
-            }
         }
 
         if (film.getDescription().length() > 200) {
@@ -108,6 +109,5 @@ public class FilmService {
             throw new ValidationException("Поле duration не может быть отрицательным.");
         }
     }
-
 
 }

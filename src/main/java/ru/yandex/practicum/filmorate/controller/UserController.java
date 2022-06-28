@@ -2,14 +2,13 @@ package ru.yandex.practicum.filmorate.controller;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
-import ru.yandex.practicum.filmorate.exception.UserNotFoundException;
+import ru.yandex.practicum.filmorate.exception.ObjectNotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.service.UserService;
 
-import java.util.List;
+import java.util.Collection;
 
 
 @RestController
@@ -20,26 +19,34 @@ public class UserController {
 
     private final UserService userService;
 
-    @GetMapping
-    public List<User> findAll() {
-        return userService.findAllUser();
-    }
-
-    @GetMapping("{id}")
-    public User findById(@PathVariable("id") Long id) throws UserNotFoundException {
-        return userService.findById(id);
-    }
-
     @PostMapping
     public User create(@RequestBody User user) throws ValidationException {
-        log.debug("Получен запрос POST");
+        log.debug("Получен запрос POST на пользователя email - {}", user.getEmail());
         return userService.create(user);
     }
 
     @PutMapping
-    public User put(@RequestBody User user) throws ValidationException {
-        log.debug("Получен запрос PUT");
+    public User update(@RequestBody User user) throws Throwable {
+        log.debug("Получен запрос PUT на пользователя id - {}", user.getId());
         return userService.update(user);
+    }
+
+    @DeleteMapping
+    public Long delete(@PathVariable("id") Long id) {
+        log.debug("Получен запрос DELETE на пользователя id - {}", id);
+        return userService.deleteUserById(id);
+    }
+
+    @GetMapping
+    public Collection<User> findAll() {
+        log.debug("Получен запрос GET на все записи с пользователями");
+        return userService.findAllUsers();
+    }
+
+    @GetMapping("{id}")
+    public User findById(@PathVariable("id") Long id) throws Throwable {
+        log.debug("Получен запрос GET на пользователя id - {}", id);
+        return userService.findUserById(id);
     }
 
 }
